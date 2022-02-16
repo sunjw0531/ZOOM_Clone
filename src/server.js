@@ -16,6 +16,18 @@ app.get("/*", (req,res) => res.redirect("/"));
 const handleListen = () => console.log(`listening on http://localhost:3000`);
 
 const server = http.createServer(app);
-const ws = new WebSocket.Server({server});
+const wss = new WebSocket.Server({server});
+
+// On server.js, 'socket' represents 'browser that just connected'
+// but on app.js, 'socket' represents 'connection to the server'
+
+wss.on("connection", (socket) =>{
+    console.log("Connected to Browser ✅ ");
+    socket.on("close", () => console.log("Disconnected from the Browser ❌"));
+    socket.on("message", (message) =>{
+        console.log(message.toString("utf-8"));
+    });
+    socket.send("hello!");
+});
 
 server.listen(3000, handleListen);
