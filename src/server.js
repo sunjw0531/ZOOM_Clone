@@ -18,16 +18,18 @@ const handleListen = () => console.log(`listening on http://localhost:3000`);
 const server = http.createServer(app);
 const wss = new WebSocket.Server({server});
 
+const sockets = [];
+
 // On server.js, 'socket' represents 'browser that just connected'
 // but on app.js, 'socket' represents 'connection to the server'
 
 wss.on("connection", (socket) =>{
+    sockets.push(socket);
     console.log("Connected to Browser ✅ ");
     socket.on("close", () => console.log("Disconnected from the Browser ❌"));
-    socket.on("message", (message) =>{
-        console.log(message.toString("utf-8"));
-    });
-    socket.send("hello!");
+    socket.on("message", (message) => {
+        sockets.forEach((aSocket) => aSocket.send(message.toString("utf-8")));
+      });
 });
 
 server.listen(3000, handleListen);
