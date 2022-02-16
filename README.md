@@ -3,4 +3,4 @@
 Using NodeJS, WebRTC and Websockets.
 
 
-install npms : nodemon, babel, ws, express, pug
+install npms : nodemon, babel, ws, express, pug, socket.io
