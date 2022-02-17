@@ -18,7 +18,24 @@ const handleListen = () => console.log(`listening on http://localhost:3000`);
 const httpServer = http.createServer(app);
 const wsServer = SocketIO(httpServer);
 
+// Find the public rooms except private rooms
+function publicRooms(){
 
+    // const sids = wsServer.sockets.adapter.sids;
+    // const rooms = wsServer.sockets.adapter.rooms;
+    // same code like below code
+    // const {sids, rooms} = wsServer.sockets.adapter;
+    // or same like below code
+    const {sockets : {adapter : {sids, rooms}}} = wsServer;
+    
+    const publicRooms = [];
+    rooms.forEach((_,key) =>{
+        if(sids.get(key) === undefined){
+            publicRooms.push(key);
+        }
+    });
+    return publicRooms;
+}
 
 wsServer.on("connection", (socket) =>{
     socket["nickname"] = "anonymous";
