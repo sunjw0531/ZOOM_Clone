@@ -14,7 +14,7 @@ let myStream;
 let muted = false;
 let cameraOff = false;
 let roomName;
-
+let myPeerConnection;
 
 async function getCameras(){
     try{
@@ -92,10 +92,11 @@ camerasSelect.addEventListener("input", handleCameraChange);
 const welcome = document.getElementById("welcome")
 const welcomeForm = welcome.querySelector("form");
 
-function startMedia(){
+async function startMedia(){
     welcome.hidden = true;
     call.hidden = false;
-    getMedia();
+    await getMedia();
+    makeConnection();
 }
 
 function handleWelcomeSubmit(event){
@@ -109,8 +110,27 @@ function handleWelcomeSubmit(event){
 welcomeForm.addEventListener("submit", handleWelcomeSubmit);
 
 
-/// socket code
+/// Socket code
 
-socket.on("welcome", () =>{
-    console.log("someone joined");
+
+socket.on("welcome", async() =>{
+    //running on peer A, create the offer
+    const offer = await myPeerConnection.createOffer();
+    myPeerConnection.setLocalDescription(offer);
+    //send the offer to peer B
+    socket.emit("offer", offer, roomName);
+});
+
+socket.on("offer", (offer) =>{
+    
 })
+
+// RTC Code
+
+function makeConnection() {
+    // create p2p connection
+    myPeerConnection = new RTCPeerConnection();
+    // Take camera and mic data stream from both browser
+    // and put that data inside of the connection
+    myStream.getTracks().forEach((track) => myPeerConnection.addTrack(track, myStream));
+}
