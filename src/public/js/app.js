@@ -118,6 +118,7 @@ socket.on("welcome", async() =>{
     //running on peer A, create the offer
     const offer = await myPeerConnection.createOffer();
     myPeerConnection.setLocalDescription(offer);
+    console.log("sent the offer");
     //send the offer to peer B
     socket.emit("offer", offer, roomName);
 });
@@ -127,10 +128,17 @@ socket.on("offer", (offer) =>{
     const answer = await myPeerConnection.createAnswer();
     myPeerConnection.setLocalDescription(answer);
     socket.emit("answer", answer, roomName);
+    console.log("sent the answer");
 })
 
 socket.on("answer", answer =>{
+    console.log("received the answer");
     myPeerConnection.setRemoteDescription(answer);
+});
+
+socket.on("ice", (ice) =>{
+    console.log("received candidate");
+    myPeerConnection.addIceCandidate(ice);
 })
 
 // RTC Code
@@ -138,7 +146,19 @@ socket.on("answer", answer =>{
 function makeConnection() {
     // create p2p connection
     myPeerConnection = new RTCPeerConnection();
+    myPeerConnection.addEventListener("icecandidate", handleIce);
+    myPeerConnection.addEventListener("addstream", handleAddStream);
     // Take camera and mic data stream from both browser
     // and put that data inside of the connection
     myStream.getTracks().forEach((track) => myPeerConnection.addTrack(track, myStream));
+}
+
+function handleIce(data){
+    console.log("sent candidate");
+    socket.emit("ice", data.candidate, roomName);
+}
+
+function handleAddStream(data){
+    const peerFace = document.getElementById("peersStream");
+    peerFace.srcObject = data.stream;
 }
