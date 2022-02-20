@@ -150,8 +150,21 @@ socket.on("ice", (ice) =>{
 // RTC Code
 
 function makeConnection() {
+    // stun
+    myPeerConnection = new RTCPeerConnection({
+        iceServers : [
+            {
+                urls: [
+                    "stun:stun.l.google.com:19302",
+                    "stun:stun1.l.google.com:19302",
+                    "stun:stun2.l.google.com:19302",
+                    "stun:stun3.l.google.com:19302",
+                    "stun:stun4.l.google.com:19302",
+                ],
+        },
+    ],
+    });
     // create p2p connection
-    myPeerConnection = new RTCPeerConnection();
     myPeerConnection.addEventListener("icecandidate", handleIce);
     myPeerConnection.addEventListener("addstream", handleAddStream);
     // Take camera and mic data stream from both browser
@@ -165,6 +178,6 @@ function handleIce(data){
 }
 
 function handleAddStream(data){
-    const peerFace = document.getElementById("peersStream");
+    const peerFace = document.getElementById("peerFace");
     peerFace.srcObject = data.stream;
 }
